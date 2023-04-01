@@ -195,9 +195,9 @@ class TimestepBufferCondition:
         main_step_type = timestep.step_type
 
     # Must have FIRST timestep after a reset.
-    if self._steps_since_first_timestep is None:
-      if main_step_type != StepType.FIRST:
-        raise RuntimeError('After reset first timestep should be FIRST.')
+    if (self._steps_since_first_timestep is None
+        and main_step_type != StepType.FIRST):
+      raise RuntimeError('After reset first timestep should be FIRST.')
 
     # pytype: disable=unsupported-operands
     if main_step_type == StepType.FIRST:
@@ -245,10 +245,7 @@ class Maybe:
     reset(self._processor)
 
   def __call__(self, value: Optional[Any]) -> Optional[Any]:
-    if value is None:
-      return None
-    else:
-      return self._processor(value)
+    return None if value is None else self._processor(value)
 
 
 class Sequential:
@@ -307,26 +304,25 @@ def reduce_step_type(step_types: Sequence[StepType],
       output_step_type = StepType.LAST
       if debug and not (np_step_types[i + 1:] == 0).all():
         raise ValueError('Expected LAST to be followed by zero padding.')
-      break
-    else:
-      if step_type != StepType.MID:
-        raise ValueError('Expected MID if not FIRST or LAST.')
+      else:
+        break
+    elif step_type != StepType.MID:
+      raise ValueError('Expected MID if not FIRST or LAST.')
   return output_step_type
 
 
 def aggregate_rewards(rewards: Sequence[Optional[float]],
                       debug: bool = False) -> Optional[float]:
   """Sums up rewards, assumes discount is 1."""
-  if None in rewards:
-    if debug:
-      np_rewards = np.array(rewards)
-      if not (np_rewards[-1] is None and (np_rewards[:-1] == 0).all()):
-        # Should only ever have [0, 0, 0, None] due to zero padding.
-        raise ValueError('Should only have a None reward for FIRST.')
-    return None
-  else:
+  if None not in rewards:
     # Faster than np.sum for a list of floats.
     return sum(rewards)
+  if debug:
+    np_rewards = np.array(rewards)
+    if np_rewards[-1] is not None or not (np_rewards[:-1] == 0).all():
+      # Should only ever have [0, 0, 0, None] due to zero padding.
+      raise ValueError('Should only have a None reward for FIRST.')
+  return None
 
 
 def aggregate_discounts(discounts: Sequence[Optional[float]],
@@ -335,13 +331,12 @@ def aggregate_discounts(discounts: Sequence[Optional[float]],
   if debug:
     np_discounts = np.array(discounts)
     if not np.isin(np_discounts, [0., 1., None]).all():
-      raise ValueError('All discounts should be 0 or 1, got: %s.' %
-                       np_discounts)
+      raise ValueError(f'All discounts should be 0 or 1, got: {np_discounts}.')
   if None in discounts:
-    if debug:
-      if not (np_discounts[-1] is None and (np_discounts[:-1] == 0).all()):
-        # Should have [0, 0, 0, None] due to zero padding.
-        raise ValueError('Should only have a None discount for FIRST.')
+    if debug and not (np_discounts[-1] is None and
+                      (np_discounts[:-1] == 0).all()):
+      # Should have [0, 0, 0, None] due to zero padding.
+      raise ValueError('Should only have a None discount for FIRST.')
     return None
   else:
     # Faster than np.prod for a list of floats.
@@ -361,7 +356,7 @@ def rgb2y(array: np.ndarray) -> np.ndarray:
 def resize(shape: Tuple[int, ...]) -> Processor[[np.ndarray], np.ndarray]:
   """Resizes array to the given shape."""
   if len(shape) != 2:
-    raise ValueError('Resize shape has to be 2D, given: %s.' % str(shape))
+    raise ValueError(f'Resize shape has to be 2D, given: {shape}.')
   # Image.resize takes (width, height) as output_shape argument.
   image_shape = (shape[1], shape[0])
 
@@ -396,7 +391,7 @@ def show(prefix: Text) -> Processor[[Any], Any]:
   """Prints value and passes through, for debugging."""
 
   def show_fn(value):
-    print('%s: %s' % (prefix, value))
+    print(f'{prefix}: {value}')
     return value
 
   return show_fn

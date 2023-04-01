@@ -200,7 +200,7 @@ class QrDqn(parts.Agent):
 
   def get_state(self) -> Mapping[Text, Any]:
     """Retrieves agent state as a dictionary (e.g. for serialization)."""
-    state = {
+    return {
         'rng_key': self._rng_key,
         'frame_t': self._frame_t,
         'opt_state': self._opt_state,
@@ -208,7 +208,6 @@ class QrDqn(parts.Agent):
         'target_params': self._target_params,
         'replay': self._replay.get_state(),
     }
-    return state
 
   def set_state(self, state: Mapping[Text, Any]) -> None:
     """Sets agent state from a (potentially de-serialized) dictionary."""

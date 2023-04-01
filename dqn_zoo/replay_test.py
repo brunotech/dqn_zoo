@@ -106,11 +106,10 @@ class NStepTransitionAccumulatorTest(absltest.TestCase):
     np.testing.assert_array_equal(expected_s_t, actual_s_t)
 
   def test_discount_accumulation(self):
-    expected = []
-    for i in range(len(self.discounts) - self.n):
-      # Offset by 1 since first discount is unused.
-      expected.append(np.prod(self.discounts[i + 1:i + 1 + self.n]))
-
+    expected = [
+        np.prod(self.discounts[i + 1:i + 1 + self.n])
+        for i in range(len(self.discounts) - self.n)
+    ]
     actual = [tr.discount_t for tr in itertools.chain(*self.accumulator_output)]
 
     np.testing.assert_allclose(expected, actual)
@@ -712,8 +711,8 @@ class NaiveSumTree:
   def get(self, indices: Sequence[int]) -> Sequence[float]:
     """Gets values corresponding to given indices."""
     indices = np.asarray(indices)
-    if not ((0 <= indices) & (indices < self.size)).all():
-      raise IndexError('Index out range expect 0 <= index < %s' % self.size)
+    if not ((indices >= 0) & (indices < self.size)).all():
+      raise IndexError(f'Index out range expect 0 <= index < {self.size}')
     return self._values[indices]
 
   def set(self, indices: Sequence[int], values: Sequence[float]):

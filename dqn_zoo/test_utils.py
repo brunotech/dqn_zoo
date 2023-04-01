@@ -71,7 +71,7 @@ class DummyEnvironment(dm_env.Environment):
         step_type=step_type, reward=0., discount=0., observation=1.)
 
   def step(self, action):
-    self._tape.append('Environment step (%s)' % action)
+    self._tape.append(f'Environment step ({action})')
     self._t += 1
     if self._t == 0:
       step_type = dm_env.StepType.FIRST

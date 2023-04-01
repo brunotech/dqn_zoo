@@ -212,7 +212,7 @@ class Rainbow(parts.Agent):
 
   def get_state(self) -> Mapping[Text, Any]:
     """Retrieves agent state as a dictionary (e.g. for serialization)."""
-    state = {
+    return {
         'rng_key': self._rng_key,
         'frame_t': self._frame_t,
         'opt_state': self._opt_state,
@@ -221,7 +221,6 @@ class Rainbow(parts.Agent):
         'replay': self._replay.get_state(),
         'max_seen_priority': self._max_seen_priority,
     }
-    return state
 
   def set_state(self, state: Mapping[Text, Any]) -> None:
     """Sets agent state from a (potentially de-serialized) dictionary."""

@@ -137,7 +137,7 @@ def importance_sampling_weights(
   if normalize:
     weights /= np.max(weights)
   if not np.isfinite(weights).all():
-    raise ValueError('Weights are not finite: %s.' % weights)
+    raise ValueError(f'Weights are not finite: {weights}.')
   return weights
 
 
@@ -169,8 +169,8 @@ class SumTree:
   def get(self, indices: Sequence[int]) -> np.ndarray:
     """Gets values corresponding to given indices."""
     indices = np.asarray(indices)
-    if not ((0 <= indices) & (indices < self.size)).all():
-      raise IndexError('index out of range, expect 0 <= index < %s' % self.size)
+    if not ((indices >= 0) & (indices < self.size)).all():
+      raise IndexError(f'index out of range, expect 0 <= index < {self.size}')
     return self.values[indices]
 
   def set(self, indices: Sequence[int], values: Sequence[float]) -> None:
@@ -263,29 +263,23 @@ class SumTree:
     assert size >= 0
     assert values is None or len(values) == size
 
-    if size < self.size:  # Keep storage and values, zero out extra values.
-      if values is None:
-        new_values = self.values[:size]  # Truncate existing values.
-      else:
-        new_values = values
+    if size < self.size:# Keep storage and values, zero out extra values.
+      new_values = self.values[:size] if values is None else values
       self._size = size
       self._set_values(new_values)
-      # self._first_leaf remains the same.
+        # self._first_leaf remains the same.
     elif size <= self.capacity:  # Reuse same storage, but size increases.
       self._size = size
       if values is not None:
         self._set_values(values)
       # self._first_leaf remains the same.
       # New activated leaf nodes are already zero and sum nodes already correct.
-    else:  # Allocate new storage.
+    else:# Allocate new storage.
       new_capacity = 1
       while new_capacity < size:
         new_capacity *= 2
       new_storage = np.empty((2 * new_capacity,), dtype=np.float64)
-      if values is None:
-        new_values = self.values
-      else:
-        new_values = values
+      new_values = self.values if values is None else values
       self._storage = new_storage
       self._first_leaf = new_capacity
       self._size = size
@@ -361,7 +355,7 @@ class PrioritizedDistribution:
     """Updates priorities for existing indices."""
     for idx in indices:
       if not self._active_indices_mask[idx]:
-        raise IndexError('Index %s cannot be updated as it is inactive.' % idx)
+        raise IndexError(f'Index {idx} cannot be updated as it is inactive.')
     self._sum_tree.set(indices, _power(priorities, self._priority_exponent))
 
   def sample(self, size: int) -> Tuple[np.ndarray, np.ndarray]:
@@ -531,7 +525,7 @@ class TransitionAccumulator:
 
     if self._timestep_tm1 is None:
       if not timestep_t.first():
-        raise ValueError('Expected FIRST timestep, got %s.' % str(timestep_t))
+        raise ValueError(f'Expected FIRST timestep, got {str(timestep_t)}.')
       self._timestep_tm1 = timestep_t
       self._a_tm1 = a_t
       return  # Empty iterable.
@@ -599,7 +593,7 @@ class NStepTransitionAccumulator:
     if self._timestep_tm1 is None:
       assert self._a_tm1 is None
       if not timestep_t.first():
-        raise ValueError('Expected FIRST timestep, got %s.' % str(timestep_t))
+        raise ValueError(f'Expected FIRST timestep, got {str(timestep_t)}.')
       self._timestep_tm1 = timestep_t
       self._a_tm1 = a_t
       return  # Empty iterable.

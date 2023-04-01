@@ -113,9 +113,9 @@ class RandomNoopsEnvironmentWrapperTest(parameterized.TestCase):
         tape.clear()
         wrapped_environment.reset()
         num_steps = len(tape)
-        expected_tape = (['Environment reset'] +
-                         ['Environment step (%s)' % noop_action] *
-                         (num_steps - 1))
+        expected_tape = ['Environment reset'
+                         ] + ([f'Environment step ({noop_action})'] *
+                              (num_steps - 1))
       else:
         timestep = wrapped_environment.reset()
         while not timestep.last():
@@ -123,7 +123,7 @@ class RandomNoopsEnvironmentWrapperTest(parameterized.TestCase):
         tape.clear()
         wrapped_environment.step(noop_action)
         num_steps = len(tape)
-        expected_tape = (['Environment step (%s)' % noop_action] * num_steps)
+        expected_tape = [f'Environment step ({noop_action})'] * num_steps
 
       self.assertEqual(expected_tape, tape)
       # +1 because of the extra initial reset() / step().

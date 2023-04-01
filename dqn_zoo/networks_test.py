@@ -77,7 +77,7 @@ class LinearWithSharedBiasTest(absltest.TestCase):
       elif path[-1] == 'w':
         chex.assert_shape(param, self.weights_shape)
       else:
-        self.fail('Unexpected parameter %s.' % path)
+        self.fail(f'Unexpected parameter {path}.')
 
     tree.map_structure_with_path(check_params, params)
 

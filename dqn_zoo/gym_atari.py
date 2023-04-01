@@ -184,8 +184,7 @@ class RandomNoopsEnvironmentWrapper(dm_env.Environment):
     for _ in range(num_steps):
       timestep = self._environment.step(self._noop_action)
       if timestep.last():
-        raise RuntimeError('Episode ended while applying %s noop actions.' %
-                           num_steps)
+        raise RuntimeError(f'Episode ended while applying {num_steps} noop actions.')
 
     # We make sure to return a FIRST timestep, i.e. discard rewards & discounts.
     return dm_env.restart(timestep.observation)

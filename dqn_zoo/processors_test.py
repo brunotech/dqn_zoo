@@ -133,7 +133,7 @@ def make_timestep_from_step_type_string(step_type_str, observation):
   elif step_type_str == 'l':
     return dm_env.termination(reward=0, observation=observation)
   else:
-    raise ValueError('Unknown step type string %s.' % step_type_str)
+    raise ValueError(f'Unknown step type string {step_type_str}.')
 
 
 class ActionRepeatsTest(absltest.TestCase):

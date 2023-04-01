@@ -267,7 +267,7 @@ def main(argv):
         ('capped_normalized_return', capped_human_normalized_score, '%.3f'),
         ('human_gap', 1. - capped_human_normalized_score, '%.3f'),
     ]
-    log_output_str = ', '.join(('%s: ' + f) % (n, v) for n, v, f in log_output)
+    log_output_str = ', '.join(f'%s: {f}' % (n, v) for n, v, f in log_output)
     logging.info(log_output_str)
     writer.write(collections.OrderedDict((n, v) for n, v, _ in log_output))
     state.iteration += 1

@@ -249,11 +249,10 @@ class CsvWriterTest(absltest.TestCase):
 
   def test_create_dir(self):
     """Tests that a csv file dir is created if it doesn't exist yet."""
-    with mock.patch('os.path.exists') as fake_exists, \
-         mock.patch('os.makedirs') as fake_makedirs:
+    with (mock.patch('os.path.exists') as fake_exists, mock.patch('os.makedirs') as fake_makedirs):
       fake_exists.return_value = False
       dirname = '/some/sub/dir'
-      _ = parts.CsvWriter(dirname + '/test.csv')
+      _ = parts.CsvWriter(f'{dirname}/test.csv')
       fake_exists.assert_called_once_with(dirname)
       fake_makedirs.assert_called_once_with(dirname)
 
